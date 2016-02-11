@@ -1,8 +1,15 @@
 var $l = function (selector) {
   if (selector instanceof HTMLElement) {
     return new DOMNodeCollection([selector]);
-  }  else {
+  } else if (selector instanceof Function) {
+    if (document.readyState === "complete") {
+      selector();
+    } else {
+      document.addEventListener('DOMContentLoaded', selector);
+    }
+  } else {
     var elementList = document.querySelectorAll(selector);
+
     return new DOMNodeCollection(Array.prototype.slice.apply(elementList));
   }
 };
@@ -108,8 +115,78 @@ DOMNodeCollection.prototype.remove = function () {
   }
 };
 
+DOMNodeCollection.prototype.on = function (eventType, callback) {
+  for (var i = 0; i < this.elements.length; i++) {
+    this.elements[i].addEventListener(eventType, callback);
+  }
 
+};
 
+DOMNodeCollection.prototype.off = function (eventType, callback) {
+  for (var i = 0; i < this.elements.length; i++) {
+    this.elements[i].removeEventListener(eventType, callback);
+  }
 
+};
+
+$l.extend = function () {
+  var mergedObject = arguments[0];
+
+  for (var i = 1; i < arguments.length; i++) {
+    var obj = arguments[i];
+    var objKeys = Object.keys(obj);
+
+    for (var j = 0; j < objKeys.length; j++) {
+      mergedObject[objKeys[j]] = obj[objKeys[j]];
+    }
+  }
+  return mergedObject;
+};
+
+//
+// $l.AJAX_DEFAULTS = {
+//   success: function () { console.log("Request successful."); },
+//   error: function() { console.log("Request failed."); },
+//   url: ,
+//   method: ,
+//   data: ,
+//   contentType:
+// }
+
+$l.ajax = function (options) {
+  var ajaxOptions = {};
+
+  var defaults = {
+    method: "GET",
+    url: "http://www.google.com",
+    data: {
+      format: 'json'
+    },
+    dataType: 'jsonp',
+    contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+    success: function (data) { console.log(data); },
+    error: function() { console.log("Request failed."); }
+
+  };
+
+  $l.extend(ajaxOptions, defaults, options);
+
+  var xmlhttp = new XMLHttpRequest();
+
+  xmlhttp.onreadystatechange = function() {
+        if (xmlhttp.readyState === XMLHttpRequest.DONE ) {
+           if(xmlhttp.status === 200){
+             ajaxOptions["success"](xmlhttp.responseText);
+           }
+           else {
+            ajaxOptions["error"]();
+           }
+        }
+    };
+
+    xmlhttp.open(ajaxOptions["method"], ajaxOptions["url"], true);
+    xmlhttp.send();
+
+};
 
 //
