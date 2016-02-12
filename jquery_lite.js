@@ -189,4 +189,5 @@ $l.ajax = function (options) {
 
 };
 
-//
+module.exports = DOMNodeCollection;
+module.exports = $l;

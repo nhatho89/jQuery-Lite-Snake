@@ -10,19 +10,18 @@ ul {
   list-style: none;
 }
 
-li {
-  float: left;
-}
-
 .square {
   outline: 1px solid gray;
   width: 25px;
   height: 25px;
   float: left;
   transition: outline 0.5s, background-color 0.5s;
-  cursor: crosshair;
-  background-color: white;
+  background-color: black;
   list-style: none;
+}
+
+.segment {
+  background-color: green;
 }
 
 .group:after {
